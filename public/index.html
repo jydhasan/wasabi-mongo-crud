@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple CRUD</title>
+    <style>
+        body { font-family: Arial; background:#f5f5f5; padding:20px; }
+        .box { background:white; padding:15px; width:300px; margin-bottom:20px; }
+        input { width:100%; margin:5px 0; padding:8px; }
+        button { padding:8px; margin-top:5px; width:100%; cursor:pointer; }
+        .user { background:white; padding:10px; margin:5px 0; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h3>Add User</h3>
+    <input id="name" placeholder="Name">
+    <input id="email" placeholder="Email">
+    <input id="age" type="number" placeholder="Age">
+    <button onclick="addUser()">Add</button>
+</div>
+
+<h3>Users</h3>
+<div id="list"></div>
+
+<script>
+async function loadUsers() {
+    const res = await fetch("/users");
+    const users = await res.json();
+
+    document.getElementById("list").innerHTML = users.map(u => `
+        <div class="user">
+            <b>${u.name}</b> <br>
+            ${u.email} | ${u.age}
+            <br><br>
+            <button onclick="deleteUser('${u._id}')">Delete</button>
+        </div>
+    `).join("");
+}
+
+async function addUser() {
+    await fetch("/users", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+            name: name.value,
+            email: email.value,
+            age: age.value
+        })
+    });
+
+    loadUsers();
+}
+
+async function deleteUser(id) {
+    await fetch("/users/" + id, {
+        method: "DELETE"
+    });
+
+    loadUsers();
+}
+
+loadUsers();
+</script>
+
+</body>
+</html>
